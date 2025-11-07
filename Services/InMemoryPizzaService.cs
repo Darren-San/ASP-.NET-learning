@@ -1,17 +1,12 @@
 using ContosoPizza.Models;
 
 namespace ContosoPizza.Services;
-
-public interface IPizzaService
+public class InMemoryPizzaService : IPizzaService
 {
-    List<Pizza> GetAll();
-}
+    private List<Pizza> Pizzas;
+    private int nextId = 3;
 
-public static class InMemoryPizzaService : IPizzaService
-{
-    static List<Pizza> Pizzas { get; }
-    static int nextId = 3;
-    static InMemoryPizzaService()
+    public InMemoryPizzaService()
     {
         Pizzas = new List<Pizza>
         {
@@ -20,31 +15,29 @@ public static class InMemoryPizzaService : IPizzaService
         };
     }
 
-    public static List<Pizza> GetAll() => Pizzas;
+    public List<Pizza> GetAll() => Pizzas;
 
-    public static Pizza? Get(int id) => Pizzas.FirstOrDefault(p => p.Id == id);
+    public Pizza? Get(int id) => Pizzas.FirstOrDefault(p => p.Id == id);
 
-    public static void Add(Pizza pizza)
+    public void Add(Pizza pizza)
     {
         pizza.Id = nextId++;
         Pizzas.Add(pizza);
     }
 
-    public static void Delete(int id)
+    public void Delete(int id)
     {
         var pizza = Get(id);
         if (pizza is null)
             return;
-
         Pizzas.Remove(pizza);
     }
 
-    public static void Update(Pizza pizza)
+    public void Update(Pizza pizza)
     {
         var index = Pizzas.FindIndex(p => p.Id == pizza.Id);
         if (index == -1)
             return;
-
         Pizzas[index] = pizza;
     }
 }
