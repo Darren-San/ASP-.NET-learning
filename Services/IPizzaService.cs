@@ -10,4 +10,5 @@ public interface IPizzaService
     void Add(Pizza pizza);
     void Update(Pizza pizza);
     void Delete(int id);
+    Task<List<Pizza>> FindGlutenFreePizzas();
 }

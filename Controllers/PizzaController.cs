@@ -8,25 +8,25 @@ namespace ContosoPizza.Controllers;
 [Route("[controller]")]
 public class PizzaController(IPizzaService pizzaService) : ControllerBase
 {
+    private readonly IPizzaService _pizzaService = pizzaService;
+
     [HttpGet]
     public ActionResult<List<Pizza>> GetAll() =>
-        pizzaService.GetAll();
+        _pizzaService.GetAll();
 
     [HttpGet("{id}")]
     public ActionResult<Pizza> Get(int id)
     {
-        var pizza = InMemoryPizzaService.Get(id);
-
-        if(pizza == null)
+        var pizza = _pizzaService.Get(id);
+        if (pizza is null)
             return NotFound();
-
         return pizza;
     }
 
     [HttpPost]
     public IActionResult Create(Pizza pizza)
-    {            
-        InMemoryPizzaService.Add(pizza);
+    {
+        _pizzaService.Add(pizza);
         return CreatedAtAction(nameof(Get), new { id = pizza.Id }, pizza);
     }
 
@@ -35,26 +35,27 @@ public class PizzaController(IPizzaService pizzaService) : ControllerBase
     {
         if (id != pizza.Id)
             return BadRequest();
-               
-        var existingPizza = InMemoryPizzaService.Get(id);
-        if(existingPizza is null)
+
+        var existingPizza = _pizzaService.Get(id);
+        if (existingPizza is null)
             return NotFound();
-       
-        InMemoryPizzaService.Update(pizza);           
-       
+
+        _pizzaService.Update(pizza);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-        var pizza = InMemoryPizzaService.Get(id);
-
+        var pizza = _pizzaService.Get(id);
         if (pizza is null)
             return NotFound();
 
-        InMemoryPizzaService.Delete(id);
-
+        _pizzaService.Delete(id);
         return NoContent();
     }
+
+    [HttpGet("glutenfree")]
+    public ActionResult<Task<List<Pizza>>> SinGluten() =>
+        _pizzaService.FindGlutenFreePizzas();
 }

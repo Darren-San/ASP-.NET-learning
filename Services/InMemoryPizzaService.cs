@@ -40,4 +40,9 @@ public class InMemoryPizzaService : IPizzaService
             return;
         Pizzas[index] = pizza;
     }
+
+    public Task<List<Pizza>> FindGlutenFreePizzas()
+    {
+        throw new NotImplementedException();
+    }
 }
