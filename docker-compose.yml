@@ -1,4 +1,3 @@
-
 version: "3.9"
 
 services:
@@ -6,10 +5,8 @@ services:
     image: mysql:8.0
     container_name: mysql-pizza
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_DATABASE: contosopizza
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
     ports:
       - "3306:3306"
     volumes:
