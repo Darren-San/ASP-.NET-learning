@@ -3,52 +3,54 @@ using ContosoPizza.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContosoPizza.Controllers;
-
 [ApiController]
-[Route("[controller]")]
-public class PizzaController(IPizzaService pizzaService) : ControllerBase
+[Route("api/pizzas")]
+public class PizzaController : ControllerBase
 {
-    private readonly IPizzaService _pizzaService = pizzaService;
+    private readonly IPizzaService _pizzaService;
+
+    public PizzaController(IPizzaService pizzaService)
+    {
+        _pizzaService = pizzaService;
+    }
 
     [HttpGet]
     public ActionResult<List<Pizza>> GetAll() =>
         _pizzaService.GetAll();
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public ActionResult<Pizza> Get(int id)
     {
         var pizza = _pizzaService.Get(id);
-        if (pizza is null)
-            return NotFound();
-        return pizza;
+        return pizza is null ? NotFound() : pizza;
     }
 
     [HttpPost]
-    public IActionResult Create(Pizza pizza)
+    public IActionResult Create([FromBody] Pizza pizza)
     {
         _pizzaService.Add(pizza);
         return CreatedAtAction(nameof(Get), new { id = pizza.Id }, pizza);
     }
 
-    [HttpPut("{id}")]
-    public IActionResult Update(int id, Pizza pizza)
+    [HttpPut("{id:int}")]
+    public IActionResult Update(int id, [FromBody] Pizza pizza)
     {
         if (id != pizza.Id)
             return BadRequest();
 
-        var existingPizza = _pizzaService.Get(id);
-        if (existingPizza is null)
+        var exists = _pizzaService.Get(id);
+        if (exists is null)
             return NotFound();
 
         _pizzaService.Update(pizza);
         return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
-        var pizza = _pizzaService.Get(id);
-        if (pizza is null)
+        var exists = _pizzaService.Get(id);
+        if (exists is null)
             return NotFound();
 
         _pizzaService.Delete(id);
@@ -56,6 +58,6 @@ public class PizzaController(IPizzaService pizzaService) : ControllerBase
     }
 
     [HttpGet("glutenfree")]
-    public ActionResult<Task<List<Pizza>>> SinGluten() =>
+    public Task<List<Pizza>> GlutenFree() =>
         _pizzaService.FindGlutenFreePizzas();
 }

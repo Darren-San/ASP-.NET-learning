@@ -4,24 +4,20 @@ using ContosoPizza.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContosoPizza.Services;
-
-public class InDatabasePizzaService(PizzaDbContext context) : IPizzaService
+public class InDatabasePizzaService : IPizzaService
 {
-    private readonly PizzaDbContext _context = context;
+    private readonly PizzaDbContext _context;
 
-    public List<Pizza> GetAll()
+    public InDatabasePizzaService(PizzaDbContext context)
     {
-        return _context.Pizzas
-            .AsNoTracking()
-            .ToList();
+        _context = context;
     }
 
-    public Pizza? Get(int id)
-    {
-        return _context.Pizzas
-            .AsNoTracking()
-            .FirstOrDefault(p => p.Id == id);
-    }
+    public List<Pizza> GetAll() =>
+        _context.Pizzas.AsNoTracking().ToList();
+
+    public Pizza? Get(int id) =>
+        _context.Pizzas.AsNoTracking().FirstOrDefault(p => p.Id == id);
 
     public void Add(Pizza pizza)
     {
@@ -45,8 +41,10 @@ public class InDatabasePizzaService(PizzaDbContext context) : IPizzaService
         _context.SaveChanges();
     }
 
-    public  Task<List<Pizza>> FindGlutenFreePizzas()
-    {
-        return _context.Pizzas.Where<Pizza>(p => p.IsGlutenFree).ToListAsync();
-    }
+    public Task<List<Pizza>> FindGlutenFreePizzas() =>
+        _context.Pizzas
+            //  retrieve data from the database without enabling change tracking for the returned entities
+            .AsNoTracking()
+            .Where(p => p.IsGlutenFree)
+            .ToListAsync();
 }
